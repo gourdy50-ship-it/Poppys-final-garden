@@ -1,0 +1,255 @@
+local Rayfield = loadstring(game:HttpGet(
+	"https://sirius.menu/rayfield"
+))()
+
+local Window = Rayfield:CreateWindow({
+	Name = "Poppy’s flower garden",
+	LoadingTitle = "Loading...",
+	LoadingSubtitle = "pneumonoultramicroscopicsilicovolcanoconiosis",
+	ConfigurationSaving = {
+		Enabled = false
+	}
+})
+
+
+-- MAIN TAB
+local MainTab = Window:CreateTab("Main", 114481054947041)
+
+
+-- Fullbright
+MainTab:CreateToggle({
+	Name = "Fullbright",
+	CurrentValue = false,
+	Flag = "FullbrightToggle",
+
+	Callback = function(Value)
+
+		local Lighting = game:GetService("Lighting")
+
+		if Value then
+
+			_G.OldBrightness = Lighting.Brightness
+			_G.OldClockTime = Lighting.ClockTime
+			_G.OldShadows = Lighting.GlobalShadows
+			_G.OldAmbient = Lighting.OutdoorAmbient
+
+			Lighting.Brightness = 2
+			Lighting.ClockTime = 14
+			Lighting.GlobalShadows = false
+			Lighting.OutdoorAmbient = Color3.fromRGB(128,128,128)
+
+		else
+
+			Lighting.Brightness = _G.OldBrightness or 1
+			Lighting.ClockTime = _G.OldClockTime or 12
+			Lighting.GlobalShadows = _G.OldShadows or true
+			Lighting.OutdoorAmbient = _G.OldAmbient or Color3.fromRGB(0,0,0)
+
+		end
+	end
+})
+
+
+-- Instant Skill Check
+MainTab:CreateToggle({
+	Name = "Instant Skill Check",
+	CurrentValue = false,
+	Flag = "InstantSkillCheck",
+
+	Callback = function(Value)
+
+		getgenv().scinstant = Value
+
+		if Value then
+
+			local event = game:GetService("ReplicatedStorage")
+				.Events.SkillcheckUpdate
+
+			local ogcb = getcallbackvalue(event,"OnClientInvoke")
+
+			if ogcb then
+
+				hookfunction(ogcb,function(...)
+
+					if getgenv().scinstant then
+						return "supercomplete"
+					end
+
+					return hook(...)
+				end)
+
+				print("Skillcheck hooked")
+
+			end
+		end
+	end
+})
+
+
+
+-- VISUALS TAB
+local VisualsTab = Window:CreateTab("Visuals")
+
+
+local VisualsEnabled = false
+
+
+local MonsterNames = {
+
+	"YattaMonster",
+	"BoxtenMonster",
+	"ShellyMonster",
+	"DandyMonster",
+	"DyleMonster",
+	"PoppyMonster",
+	"SquirmMonster",
+	"TishaMonster",
+	"ShrimpoMonster",
+	"ScrapsMonster",
+	"GoobMonster",
+	"VeeMonster",
+	"SproutMonster",
+	"CosmoMonster",
+	"AstroMonster",
+	"PebbleMonster",
+	"BlotMonster",
+	"LooeyMonster",
+	"ToodlesMonster",
+	"FlutterMonster",
+	"GlistenMonster",
+	"FinnMonster",
+	"ConnieMonster",
+	"RazzleAndDazzleMonster",
+	"RodgerMonster",
+	"TeaganMonster",
+	"BrushaMonster"
+
+}
+
+
+local MonsterSet = {}
+
+for _,v in pairs(MonsterNames) do
+	MonsterSet[v] = true
+end
+
+
+
+local function AddESP(model)
+
+	if model:FindFirstChild("MonsterESP") then
+		return
+	end
+
+
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "MonsterESP"
+	gui.Size = UDim2.new(0,150,0,40)
+	gui.StudsOffset = Vector3.new(0,5,0)
+	gui.AlwaysOnTop = true
+	gui.Enabled = VisualsEnabled
+	gui.Parent = model
+
+
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.new(1,0,1,0)
+	text.BackgroundTransparency = 1
+	text.Text = model.Name
+	text.TextScaled = true
+	text.TextColor3 = Color3.fromRGB(255,255,255)
+	text.TextStrokeColor3 = Color3.fromRGB(255,0,0)
+	text.TextStrokeTransparency = 0
+	text.Parent = gui
+
+end
+
+
+
+local function Scan()
+
+	for _,v in pairs(workspace:GetDescendants()) do
+
+		if MonsterSet[v.Name]
+		and v:IsA("Model") then
+
+			AddESP(v)
+
+		end
+	end
+end
+
+
+
+VisualsTab:CreateToggle({
+	Name = "Monster ESP",
+	CurrentValue = false,
+	Flag = "MonsterESP",
+
+	Callback = function(Value)
+
+		VisualsEnabled = Value
+
+		Scan()
+
+		for _,v in pairs(workspace:GetDescendants()) do
+
+			if v:FindFirstChild("MonsterESP") then
+				v.MonsterESP.Enabled = Value
+			end
+
+		end
+	end
+})
+
+
+
+workspace.DescendantAdded:Connect(function(v)
+
+	if VisualsEnabled
+	and MonsterSet[v.Name]
+	and v:IsA("Model") then
+
+		task.wait(.2)
+		AddESP(v)
+
+	end
+
+end)
+
+
+
+-- SETTINGS TAB
+local SettingsTab = Window:CreateTab("Settings")
+
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+
+SettingsTab:CreateToggle({
+	Name = "Streamer Mode",
+	CurrentValue = false,
+	Flag = "StreamerMode",
+
+	Callback = function(Value)
+
+		pcall(function()
+
+			StarterGui:SetCoreGuiEnabled(
+				Enum.CoreGuiType.Chat,
+				not Value
+			)
+
+			StarterGui:SetCoreGuiEnabled(
+				Enum.CoreGuiType.PlayerList,
+				not Value
+			)
+
+			StarterGui:SetCoreGuiEnabled(
+				Enum.CoreGuiType.Backpack,
+				not Value
+			)
+
+		end)
+
+	end
+})
