@@ -1,3 +1,5 @@
+Poppy flower garden
+
 local Rayfield = loadstring(game:HttpGet(
 	"https://sirius.menu/rayfield"
 ))()
@@ -27,7 +29,6 @@ MainTab:CreateToggle({
 		local Lighting = game:GetService("Lighting")
 
 		if Value then
-
 			_G.OldBrightness = Lighting.Brightness
 			_G.OldClockTime = Lighting.ClockTime
 			_G.OldShadows = Lighting.GlobalShadows
@@ -39,13 +40,12 @@ MainTab:CreateToggle({
 			Lighting.OutdoorAmbient = Color3.fromRGB(128,128,128)
 
 		else
-
 			Lighting.Brightness = _G.OldBrightness or 1
 			Lighting.ClockTime = _G.OldClockTime or 12
 			Lighting.GlobalShadows = _G.OldShadows or true
 			Lighting.OutdoorAmbient = _G.OldAmbient or Color3.fromRGB(0,0,0)
-
 		end
+
 	end
 })
 
@@ -69,27 +69,30 @@ MainTab:CreateToggle({
 
 			if ogcb then
 
-				hookfunction(ogcb,function(...)
+				local old
+				old = hookfunction(ogcb,function(...)
 
 					if getgenv().scinstant then
 						return "supercomplete"
 					end
 
-					return hook(...)
+					return old(...)
 				end)
 
 				print("Skillcheck hooked")
 
+			else
+				warn("Skillcheck failed")
 			end
+
 		end
+
 	end
 })
 
 
-
 -- VISUALS TAB
 local VisualsTab = Window:CreateTab("Visuals")
-
 
 local VisualsEnabled = false
 
@@ -122,7 +125,21 @@ local MonsterNames = {
 	"RazzleAndDazzleMonster",
 	"RodgerMonster",
 	"TeaganMonster",
-	"BrushaMonster"
+	"BrushaMonster",
+
+	"BrightneyMonster",
+	"EggsonMonster",
+	"RudieMonster",
+	"RibeccaMonster",
+	"GigiMonster",
+	"GingerMonster",
+	"FlyteMonster",
+	"SoulvesterMonster",
+	"CoalMonster",
+	"CocoaMonster",
+	"BassieMonster",
+	"BobetteMonster",
+	"GourdyMonster"
 
 }
 
@@ -134,50 +151,43 @@ for _,v in pairs(MonsterNames) do
 end
 
 
-
 local function AddESP(model)
 
 	if model:FindFirstChild("MonsterESP") then
 		return
 	end
 
+	local highlight = Instance.new("Highlight")
 
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "MonsterESP"
-	gui.Size = UDim2.new(0,150,0,40)
-	gui.StudsOffset = Vector3.new(0,5,0)
-	gui.AlwaysOnTop = true
-	gui.Enabled = VisualsEnabled
-	gui.Parent = model
+	highlight.Name = "MonsterESP"
+	highlight.FillColor = Color3.fromRGB(255,0,0)
+	highlight.OutlineColor = Color3.fromRGB(255,255,255)
 
+	highlight.FillTransparency = 0.5
+	highlight.OutlineTransparency = 0
 
-	local text = Instance.new("TextLabel")
-	text.Size = UDim2.new(1,0,1,0)
-	text.BackgroundTransparency = 1
-	text.Text = model.Name
-	text.TextScaled = true
-	text.TextColor3 = Color3.fromRGB(255,255,255)
-	text.TextStrokeColor3 = Color3.fromRGB(255,0,0)
-	text.TextStrokeTransparency = 0
-	text.Parent = gui
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Enabled = VisualsEnabled
+
+	highlight.Parent = model
 
 end
-
 
 
 local function Scan()
 
 	for _,v in pairs(workspace:GetDescendants()) do
 
-		if MonsterSet[v.Name]
-		and v:IsA("Model") then
+		if v:IsA("Model")
+		and MonsterSet[v.Name] then
 
 			AddESP(v)
 
 		end
-	end
-end
 
+	end
+
+end
 
 
 VisualsTab:CreateToggle({
@@ -198,16 +208,16 @@ VisualsTab:CreateToggle({
 			end
 
 		end
+
 	end
 })
-
 
 
 workspace.DescendantAdded:Connect(function(v)
 
 	if VisualsEnabled
-	and MonsterSet[v.Name]
-	and v:IsA("Model") then
+	and v:IsA("Model")
+	and MonsterSet[v.Name] then
 
 		task.wait(.2)
 		AddESP(v)
@@ -215,41 +225,3 @@ workspace.DescendantAdded:Connect(function(v)
 	end
 
 end)
-
-
-
--- SETTINGS TAB
-local SettingsTab = Window:CreateTab("Settings")
-
-local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
-
-
-SettingsTab:CreateToggle({
-	Name = "Streamer Mode",
-	CurrentValue = false,
-	Flag = "StreamerMode",
-
-	Callback = function(Value)
-
-		pcall(function()
-
-			StarterGui:SetCoreGuiEnabled(
-				Enum.CoreGuiType.Chat,
-				not Value
-			)
-
-			StarterGui:SetCoreGuiEnabled(
-				Enum.CoreGuiType.PlayerList,
-				not Value
-			)
-
-			StarterGui:SetCoreGuiEnabled(
-				Enum.CoreGuiType.Backpack,
-				not Value
-			)
-
-		end)
-
-	end
-})
